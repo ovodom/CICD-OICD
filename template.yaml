@@ -2,20 +2,39 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
-  HelloFunction:
+
+  NotesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: NotesTable
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+  NotesFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.11
       CodeUri: .
+      Environment:
+        Variables:
+          TABLE_NAME: NotesTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: NotesTable
       Events:
-        HelloApi:
+        ApiEvent:
           Type: Api
           Properties:
-            Path: /hello
-            Method: get
+            Path: /notes
+            Method: ANY
 
 Outputs:
-  HelloApi:
-    Description: API URL
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello"
+  NotesApi:
+    Description: "API Gateway endpoint"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/notes"
