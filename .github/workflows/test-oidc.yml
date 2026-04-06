@@ -1,4 +1,4 @@
-name: Test OIDC
+name: Deploy SAM App
 
 on:
   push:
@@ -10,15 +10,29 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::630287362492:role/github-sam-deploy-role
           aws-region: eu-north-1
 
-      - name: Test identity
-        run: aws sts get-caller-identity
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install AWS SAM CLI
+        run: pip install aws-sam-cli
+
+      - name: Build SAM app
+        run: sam build
+
+      - name: Deploy SAM app
+        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
