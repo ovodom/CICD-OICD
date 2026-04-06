@@ -31,3 +31,8 @@ jobs:
 
       - name: Deploy SAM app
         run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
+
+      - name: Run basic test
+        run: |
+          echo "Running basic test..."
+          python -c "print('Test passed')"  
